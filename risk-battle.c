@@ -69,10 +69,17 @@ void evaluate(int *attackers, int *defenders) {
      }
 }
 
-double attacker_win_prob(int _attackers, int _defenders) {
+void simulate_games(int _attackers, int _defenders,
+                    double *attacker_win_prob,
+                    double *attacker_avg_losses,
+                    double *defender_avg_losses) {
+     
      int attacker_wins = 0;
      int defender_wins = 0;
 
+     int attacker_troop_losses = 0;
+     int defender_troop_losses = 0;
+     
      for(int ii = 0; ii < SAMPLE_RUNS; ii++) {
           DEBUG_MSG(printf("\n"));
 
@@ -89,18 +96,23 @@ double attacker_win_prob(int _attackers, int _defenders) {
                count--;
           }
 
+          attacker_troop_losses += (_attackers - attackers);
+          defender_troop_losses += (_defenders - defenders);
+
           if (!attackers) {
                defender_wins++;
-          }
-
-          if (!defenders) {
+          } else if (!defenders) {
                attacker_wins++;
           }
      }
 
      DEBUG_MSG(printf("att/def wins: %d/%d\n", attacker_wins, defender_wins));
+     
+     *attacker_win_prob =
+          (double)attacker_wins / ((double)attacker_wins + (double)defender_wins);
 
-     return (double)attacker_wins / ((double)attacker_wins + (double)defender_wins);
+     *attacker_avg_losses = (double)attacker_troop_losses / (double)SAMPLE_RUNS;
+     *defender_avg_losses = (double)defender_troop_losses / (double)SAMPLE_RUNS;
 }
 
 int main(int argc, char *argv[]) {
@@ -108,9 +120,13 @@ int main(int argc, char *argv[]) {
 
      for(int attackers = 1; attackers < TROOP_RANGE; attackers++) {
           for(int defenders = 1; defenders < TROOP_RANGE; defenders++) {
-               double p_awin = attacker_win_prob(attackers, defenders);
+               double p_awin;
+               double avg_aloss;
+               double avg_dloss;
 
-               printf("%d,%d,%0.4f\n", attackers, defenders, p_awin);
+               simulate_games(attackers, defenders, &p_awin, &avg_aloss, &avg_dloss);
+
+               printf("%d,%d,%0.4f,%0.4f,%0.4f\n", attackers, defenders, p_awin, avg_aloss, avg_dloss);
           }
      }
      
