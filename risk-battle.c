@@ -1,185 +1,117 @@
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 #include "mt19937.h"
 
-typedef char ball;
+#define DEBUG_MSG(x)
 
-#define NBALLS (75)
-#define BDIM (5)
+#define SAMPLE_RUNS 1000000
+#define TROOP_RANGE 20
 
-int col_ball_p(ball b, int col) {
-     ball low = (NBALLS / BDIM) * col;
-     ball high = low + (NBALLS / BDIM);
+char roll_dice() {
+     long x = mt19937_int31();
 
-     return (b >= low) && (b < high);
-}
-              
-struct ball_info_t {
-     ball b;
-     int t;
-};
-
-void shuffle_balls(ball balls[]) {
-     int ii;
-
-     for(ii = 0; ii < NBALLS; ii++) {
-          int index = mt19937_int31() % NBALLS;
-
-          ball tmp = balls[NBALLS - ii - 1];
-          balls[NBALLS - ii - 1] = balls[index];
-          balls[index] = tmp;
-     }
-
-     /*
-     printf("after: ");     
-     for(ii = 0; ii < NBALLS; ii++) {
-          printf("%d, ", (int)balls[ii]);
-     }
-     printf("\n");
-     */
+     return (char)(x % 6) + 1;
 }
 
-
-struct balls_t {
-     int ndrawn;
-     ball balls[NBALLS];
-};
-
-void init_balls(struct balls_t *b) {
-     int ii;
-     struct ball_info_t bis[NBALLS];
-
-     for(ii = 0; ii < NBALLS; ii++) {
-          b->balls[ii] = ii;
+void sort_step(char *a, char *b) {
+     if (*a < *b) {
+          char temp = *b;
+          *b = *a;
+          *a = temp;
      }
-
-     shuffle_balls(b->balls);
+}
      
-     b->ndrawn = 0;
-}
-
-ball draw_ball(struct balls_t *bs) {
-     if (bs->ndrawn >= NBALLS) {
-          return -1;
+void roll_hand(int die_rolled, int num_die, char dice[]) {
+     for(int ii = 0; ii < num_die; ii++) {
+          dice[ii] = (ii < die_rolled) ? roll_dice() : -1;
      }
+
+     // num_die bounded by sorting network capacity.
+     assert(num_die < 4);
      
-     return bs->balls[bs->ndrawn++];
+     sort_step(&dice[0], &dice[1]);
+     sort_step(&dice[1], &dice[2]);
+     sort_step(&dice[0], &dice[1]);
+     sort_step(&dice[1], &dice[2]);
 }
 
-struct board_t {
-     ball squares[BDIM * BDIM];
-     unsigned int marks;
-};
-
-int board_ofs(int x, int y) {
-     return x + (y * BDIM);
+int min(int a, int b) {
+     return (a > b) ? b : a;
 }
 
-int board_mask(int x, int y) {
-     return 0x1 << board_ofs(x, y);
+void show_dice(char *label, char die[]) {
+     printf(" %s > %d, %d, %d\n", label, (int)die[0], (int)die[1], (int)die[2]);
 }
 
-void print_board(struct board_t *b) {
-     printf(" B   I   N   G   O\n");
+void evaluate(int *attackers, int *defenders) {
+     char a_die[3];
+     char d_die[3];
 
-     for(int y = 0; y < BDIM; y++) {
-          for(int x = 0; x < BDIM; x++) {
-               printf("%02d%c ",
-                      b->squares[board_ofs(x, y)],
-                      ((b->marks & board_mask(x, y)) != 0) ? '*' : ' ');
+     roll_hand(min(3, *attackers), 3, a_die);
+     roll_hand(min(2, *defenders), 3, d_die);
+
+     DEBUG_MSG(show_dice("attacker", a_die));
+     DEBUG_MSG(show_dice("defender", d_die));
+
+     for(int ii = 0; ii < 3; ii++) {
+          if ((a_die[ii] == -1) || (d_die[ii] == -1)) {
+               return;
           }
-          printf("\n");
-     }
-}
-
-void generate_board(struct board_t *board) {
-     struct balls_t bs;
-
-     init_balls(&bs);
-     
-     for(int x = 0; x < BDIM; x++) {
-          bs.ndrawn = 0;
           
-          for(int y = 0; y < BDIM; y++) {
-               ball b = -1;
-
-               while(!col_ball_p(b, x)) {
-                    b = draw_ball(&bs);
-               }
-               
-               board->squares[board_ofs(x, y)] = b;
+          if (a_die[ii] > d_die[ii]) {
+               *defenders = *defenders - 1;
+          } else if (a_die[ii] <= d_die[ii]) {
+               *attackers = *attackers - 1;
           }
      }
 }
 
-void reset_board(struct board_t *board) {
-     board->marks = 0;
-}
+double attacker_win_prob(int _attackers, int _defenders) {
+     int attacker_wins = 0;
+     int defender_wins = 0;
 
-ball board_step(struct balls_t *balls, struct board_t *board) {
-     ball b = draw_ball(balls);
-     
-     for(int ii = 0; ii < BDIM * BDIM; ii++) {
-          if (board->squares[ii] == b) {
-               board->marks |= (0x1 << ii);
-               break;
+     for(int ii = 0; ii < SAMPLE_RUNS; ii++) {
+          DEBUG_MSG(printf("\n"));
+
+          int attackers = _attackers;
+          int defenders = _defenders;
+
+          int count = 100;
+
+          while(attackers && defenders && count) {
+               evaluate(&attackers, &defenders);
+
+               DEBUG_MSG(printf("a: %d, d: %d\n", attackers, defenders));
+
+               count--;
+          }
+
+          if (!attackers) {
+               defender_wins++;
+          }
+
+          if (!defenders) {
+               attacker_wins++;
           }
      }
 
-     /*
-     printf(">>> step %d, ball %d\n", balls->ndrawn, (int)b);
-     print_board(board);
-     */
-     
-     return b;
-}
+     DEBUG_MSG(printf("att/def wins: %d/%d\n", attacker_wins, defender_wins));
 
-int board_solved_p(struct board_t *board) {
-     return board->marks == 0x01FFFFFF;
-}
-     
-int play_game(struct board_t *board) {
-     struct balls_t balls;
-     init_balls(&balls);
-
-     int step = 0;
-     
-     while(!board_solved_p(board)) {
-          if (board_step(&balls, board) < 0) {
-               break;
-          }
-
-          step++;
-     }
-
-     return step;
+     return (double)attacker_wins / ((double)attacker_wins + (double)defender_wins);
 }
 
 int main(int argc, char *argv[]) {
-     int ii;
      init_mt19937(0);
 
-     int counts[NBALLS + 1];
-     memset(counts, 0, sizeof(counts));
+     for(int attackers = 1; attackers < TROOP_RANGE; attackers++) {
+          for(int defenders = 1; defenders < TROOP_RANGE; defenders++) {
+               double p_awin = attacker_win_prob(attackers, defenders);
 
-     struct board_t b;
-
-     for(ii = 0; ii < 20 * 100000000; ii++) {
-          if (ii % 1000000 == 0) {
-               printf("%d\n", ii);
+               printf("%d,%d,%0.4f\n", attackers, defenders, p_awin);
           }
-          
-          generate_board(&b);
-          reset_board(&b);
-          int steps = play_game(&b);
-
-          counts[steps]++;
-     }
-
-     for(ii = BDIM * BDIM; ii <= NBALLS; ii++) {
-          printf("%d, %d\n", ii, counts[ii]);
      }
      
      fprintf(stderr, "end run.\n");
