@@ -8,8 +8,8 @@
 #define DEBUG 0
 #define TRACE 0
 
-#define SAMPLE_RUNS 5000000
-#define TROOP_RANGE 20
+#define SAMPLE_RUNS 10000000
+#define TROOP_RANGE 40
 
 #if DEBUG
 #  define DEBUG_MSG(x) x

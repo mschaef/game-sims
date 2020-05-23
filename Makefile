@@ -1,5 +1,6 @@
 
 CCOPTS=-O3
+#CCOPTS=-O0 -g
 
 TARGETS=bingo chutes risk-battle sorry
 

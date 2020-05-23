@@ -5,7 +5,7 @@
 
 #include "mt19937.h"
 
-#define GAME_COUNT (100000) //000)
+#define GAME_COUNT (100000000)
 
 #define HISTORY_LENGTH (512)
 
