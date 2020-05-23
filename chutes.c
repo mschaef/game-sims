@@ -78,13 +78,18 @@ int game_sim(int buf_len, int game_buf[]) {
      return move;
 }
 
-void update_durations(int game_len, int game[]) {
-     for(int ii = game_len - 1; ii >= 0; ii--) {
-          counts[game[ii]][game_len - ii]++;
+void update_durations(int game_history_len, int game_history[]) {
+     for(int ii = game_history_len - 1; ii >= 0; ii--) {
+          counts[game_history[ii]][game_history_len - ii]++;
      }
 }
 
 void show_durations() {
+     /* Print a table that has a row for each position on the board
+      * and a column for the number of plays remaining in the
+      * game. Each cell shows how many games took that length from
+      * that position.
+      */
      for(int bpos = 0; bpos < BOARD_SIZE; bpos++) {
           for(int len = 0; len < HISTORY_LENGTH; len++) {
                printf("%d,", counts[bpos][len]);
@@ -96,20 +101,26 @@ void show_durations() {
 int main(int argc, char *argv[]) {
      init();
 
+     int overrun_count = 0;
+
      for(int ii = 0; ii < GAME_COUNT; ii++) {
-          int buf[HISTORY_LENGTH];
+          int game_history[HISTORY_LENGTH];
 
-          int game_length = game_sim(HISTORY_LENGTH, buf);
+          int game_history_len = game_sim(HISTORY_LENGTH, game_history);
 
-          if (game_length < 0) {
-               printf("game buffer overrun\n");
+          if (game_history_len < 0) {
+               overrun_count++;
           } else {
-               update_durations(game_length, buf);
+               update_durations(game_history_len, game_history);
           }
      }
 
      show_durations();
 
-     printf("end run.\n");
+     if (overrun_count > 0) {
+          printf("\n%d game history overrun%s!\n", overrun_count, (overrun_count == 1) ? "" : "s");
+          return 1;
+     }
+
      return 0;
 }
