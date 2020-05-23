@@ -21,5 +21,5 @@ sorry: sorry.c mt19937.c mt19937.h Makefile
 
 .PHONY: clean
 clean:
-	rm -vf ${TARGETS}
-	rm -vf *.o
+	rm -vfr ${TARGETS}
+	rm -vfr *.o *.dSYM
