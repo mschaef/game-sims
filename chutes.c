@@ -5,15 +5,16 @@
 
 #include "mt19937.h"
 
-#define GAME_COUNT (10000000)
+#define GAME_COUNT (100000) //000)
 
 #define HISTORY_LENGTH (512)
 
 #define BOARD_SIZE (100)
 
-static int warps[BOARD_SIZE];
-static int counts[BOARD_SIZE][HISTORY_LENGTH];
+typedef unsigned int board_pos_t;
 
+static board_pos_t warps[BOARD_SIZE];
+static int counts[BOARD_SIZE][HISTORY_LENGTH];
 
 void init() {
      memset(counts, 0, sizeof(counts));
@@ -47,7 +48,7 @@ int roll_die() {
 int game_sim(int buf_len, int game_buf[]) {
      int move = 0;
 
-     int location = 0;
+     board_pos_t location = 0;
 
      while (location < BOARD_SIZE) {
           if (move >= buf_len) {
@@ -59,7 +60,7 @@ int game_sim(int buf_len, int game_buf[]) {
           game_buf[move] = location;
           move++;
 
-          int new_location;
+          board_pos_t new_location;
 
           new_location = location + die;
 
