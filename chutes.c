@@ -5,7 +5,7 @@
 
 #include "mt19937.h"
 
-#define GAME_COUNT (100000000)
+#define GAME_COUNT (500000000)
 
 #define HISTORY_LENGTH (512)
 
@@ -98,12 +98,33 @@ void show_durations() {
      }
 }
 
+double avg_durations_from_loc(int bpos) {
+     double sum = 0.0;
+     int count = 0;
+
+     for(int ii = 0; ii < HISTORY_LENGTH; ii++) {
+          count += counts[bpos][ii];
+          sum += (ii * counts[bpos][ii]);
+     }
+
+     if (count < 1) {
+          return -1;
+     } else {
+          return sum / count;
+     }
+}
+
 int main(int argc, char *argv[]) {
      init();
 
      int overrun_count = 0;
 
      for(int ii = 0; ii < GAME_COUNT; ii++) {
+
+          if (ii % 10000000 == 0) {
+               printf("%d/%d\n", ii, GAME_COUNT);
+          }
+
           int game_history[HISTORY_LENGTH];
 
           int game_history_len = game_sim(HISTORY_LENGTH, game_history);
@@ -116,6 +137,11 @@ int main(int argc, char *argv[]) {
      }
 
      show_durations();
+
+     printf("pos, avgdur\n");
+     for(int ii = 0; ii < BOARD_SIZE; ii++) {
+          printf("%d, %f\n", ii, avg_durations_from_loc(ii));
+     }
 
      if (overrun_count > 0) {
           printf("\n%d game history overrun%s!\n", overrun_count, (overrun_count == 1) ? "" : "s");
