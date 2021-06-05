@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include <inttypes.h>
 
@@ -114,6 +115,27 @@ double avg_durations_from_loc(int bpos) {
      }
 }
 
+double stdev_at_loc(int bpos) {
+     double avg = avg_durations_from_loc(bpos);
+
+     double sum = 0.0;
+     int count = 0;
+     
+     for(int ii = 0; ii < HISTORY_LENGTH; ii++) {
+          double xx = (ii - avg);
+
+          sum += counts[bpos][ii] * (xx * xx);
+          count += counts[bpos][ii];
+     }
+
+     if (count < 1) {
+          return -1;
+     } else {
+          return sqrt(sum / count);
+     }
+}
+
+
 int main(int argc, char *argv[]) {
      init();
 
@@ -140,7 +162,7 @@ int main(int argc, char *argv[]) {
 
      printf("pos, avgdur\n");
      for(int ii = 0; ii < BOARD_SIZE; ii++) {
-          printf("%d, %f\n", ii, avg_durations_from_loc(ii));
+          printf("%d, %f,%f\n", ii, avg_durations_from_loc(ii), stdev_at_loc(ii));
      }
 
      if (overrun_count > 0) {
