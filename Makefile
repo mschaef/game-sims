@@ -13,8 +13,8 @@ bingo: bingo.c mt19937.c mt19937.h Makefile
 chutes: chutes.c mt19937.c mt19937.h Makefile
 	gcc ${CCOPTS} -o chutes chutes.c mt19937.c
 
-risk-battle:risk-battle.c mt19937.c mt19937.h Makefile
-	gcc ${CCOPTS} -o risk-battle mt19937.c risk-battle.c
+risk-battle:risk-battle.c mt19937.c mt19937.h common.c common.h Makefile
+	gcc ${CCOPTS} -o risk-battle mt19937.c common.c risk-battle.c
 
 sorry: sorry.c mt19937.c mt19937.h Makefile
 	gcc ${CCOPTS} -o sorry sorry.c mt19937.c

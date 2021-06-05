@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "mt19937.h"
+#include "common.h"
 
 #define DEBUG 0
 #define TRACE 0
@@ -23,12 +24,6 @@
 #  define TRACE_MSG(x)
 #endif
 
-
-char roll_dice() {
-     long x = mt19937_int31();
-
-     return (char)(x % 6) + 1;
-}
 
 void sort_step(char *a, char *b) {
      if (*a < *b) {
