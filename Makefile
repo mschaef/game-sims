@@ -2,7 +2,7 @@
 CCOPTS=-O3
 #CCOPTS=-O0 -g
 
-TARGETS=bingo chutes risk-battle sorry
+TARGETS=bingo chutes risk-battle sorry yahtzee
 
 .PHONY: all
 all: ${TARGETS}
@@ -18,6 +18,9 @@ risk-battle:risk-battle.c mt19937.c mt19937.h common.c common.h Makefile
 
 sorry: sorry.c mt19937.c mt19937.h Makefile
 	gcc ${CCOPTS} -o sorry sorry.c mt19937.c
+
+yahtzee: yahtzee.c mt19937.c mt19937.h common.c common.h Makefile
+	gcc ${CCOPTS} -o yahtzee mt19937.c common.c yahtzee.c
 
 .PHONY: clean
 clean:
