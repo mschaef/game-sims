@@ -8,6 +8,8 @@
 
 #define NDICE 5
 
+#define NHANDS 500000000
+
 void roll_hand(char dice[NDICE]) {
      for(int ii = 0; ii < NDICE; ii++) {
           dice[ii] = roll_dice();
@@ -54,7 +56,12 @@ int main(int argc, char *argv[]) {
 
      char dice[NDICE];
 
-     for(int ii = 0; ii < 100000; ii++) {
+     for(int ii = 0; ii < NHANDS; ii++) {
+
+          if (ii % 2000000 == 0) {
+               fprintf(stderr, "[%d/%d]\n", ii, NHANDS);
+          }
+          
           roll_hand(dice);
           DEBUG_MSG(show_hand(dice));
 
