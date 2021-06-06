@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "mt19937.h"
 #include "common.h"
 
 #define SAMPLE_RUNS 10000000
@@ -19,7 +18,7 @@ void sort_step(char *a, char *b) {
 
 void roll_hand(int die_rolled, int num_die, char dice[]) {
      for(int ii = 0; ii < num_die; ii++) {
-          dice[ii] = (ii < die_rolled) ? roll_dice() : -1;
+          dice[ii] = (ii < die_rolled) ? roll_1d6() : -1;
      }
 
      // num_die bounded by sorting network capacity.
@@ -166,14 +165,12 @@ void sample(int attackers, int defenders) {
             c_result.defender_avg_losses);
 }
 
-int main(int argc, char *argv[]) {
-     init_mt19937(0);
-
+int sim_main() {
      for(int attackers = 1; attackers < TROOP_RANGE; attackers++) {
           for(int defenders = 1; defenders < TROOP_RANGE; defenders++) {
                sample(attackers, defenders);
           }
      }
 
-     fprintf(stderr, "end run.\n");
+     return 0;
 }

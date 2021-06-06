@@ -42,8 +42,6 @@ struct game_state {
 };
 
 
-int main(int argc, char *argv[]) {
-     printf("end run.\n");
-
+int sim_main() {
      return 0;
 }

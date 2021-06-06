@@ -8,7 +8,9 @@
 #ifndef __COMMON_H
 #define __COMMON_H
 
-char roll_dice();
+char roll_1d6();
+
+int sim_main();
 
 #ifndef DEBUG
 #   define DEBUG 0

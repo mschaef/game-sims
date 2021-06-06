@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "mt19937.h"
 #include "common.h"
 
 #define NDICE 5
@@ -12,14 +11,14 @@
 
 void roll_hand(char dice[NDICE]) {
      for(int ii = 0; ii < NDICE; ii++) {
-          dice[ii] = roll_dice();
+          dice[ii] = roll_1d6();
      }
 }
 
 void improve_chance_hand(char dice[NDICE]) {
      for(int ii = 0; ii < NDICE; ii++) {
           if(dice[ii] < 4) {
-               dice[ii] = roll_dice();
+               dice[ii] = roll_1d6();
           }
      }
 }
@@ -45,9 +44,7 @@ int hand_chance_score(char dice[NDICE]) {
      return score;
 }
 
-int main(int argc, char *argv[]) {
-     init_mt19937(0);
-
+int sim_main() {
      int scores[31];
      int improved_scores[31];
 
@@ -82,6 +79,7 @@ int main(int argc, char *argv[]) {
      for(int ii = 0; ii < 31; ii++) {
           printf("%d, %d, %d\n", ii, scores[ii], improved_scores[ii]);
      }
-     
-     fprintf(stderr, "end run.\n");
+
+     return 0;
 }
+

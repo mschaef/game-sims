@@ -157,10 +157,9 @@ int play_game(struct board_t *board) {
      return step;
 }
 
-int main(int argc, char *argv[]) {
+int sim_main() {
      int ii;
-     init_mt19937(0);
-
+     
      int counts[NBALLS + 1];
      memset(counts, 0, sizeof(counts));
 
@@ -181,6 +180,6 @@ int main(int argc, char *argv[]) {
      for(ii = BDIM * BDIM; ii <= NBALLS; ii++) {
           printf("%d, %d\n", ii, counts[ii]);
      }
-     
-     fprintf(stderr, "end run.\n");
+
+     return 0;
 }

@@ -4,23 +4,26 @@ CCOPTS=-O3
 
 TARGETS=bingo chutes risk-battle sorry yahtzee
 
+COMMON_SRC=mt19937.c common.c
+COMMON_DEPS=mt19937.c mt19937.h common.c common.h Makefile
+
 .PHONY: all
 all: ${TARGETS}
 
-bingo: bingo.c mt19937.c mt19937.h Makefile
-	gcc ${CCOPTS} -o bingo mt19937.c bingo.c
+bingo: bingo.c ${COMMON_DEPS}
+	gcc ${CCOPTS} -o bingo bingo.c ${COMMON_SRC}
 
-chutes: chutes.c mt19937.c mt19937.h Makefile
-	gcc ${CCOPTS} -o chutes chutes.c mt19937.c
+chutes: chutes.c ${COMMON_DEPS}
+	gcc ${CCOPTS} -o chutes chutes.c  ${COMMON_SRC}
 
-risk-battle:risk-battle.c mt19937.c mt19937.h common.c common.h Makefile
-	gcc ${CCOPTS} -o risk-battle mt19937.c common.c risk-battle.c
+risk-battle: risk-battle.c ${COMMON_DEPS}
+	gcc ${CCOPTS} -o risk-battle risk-battle.c ${COMMON_SRC}
 
-sorry: sorry.c mt19937.c mt19937.h Makefile
-	gcc ${CCOPTS} -o sorry sorry.c mt19937.c
+sorry: sorry.c ${COMMON_DEPS}
+	gcc ${CCOPTS} -o sorry sorry.c ${COMMON_SRC}
 
-yahtzee: yahtzee.c mt19937.c mt19937.h common.c common.h Makefile
-	gcc ${CCOPTS} -o yahtzee mt19937.c common.c yahtzee.c
+yahtzee: yahtzee.c ${COMMON_DEPS}
+	gcc ${CCOPTS} -o yahtzee yahtzee.c ${COMMON_SRC}
 
 .PHONY: clean
 clean:

@@ -135,8 +135,7 @@ double stdev_at_loc(int bpos) {
      }
 }
 
-
-int main(int argc, char *argv[]) {
+int sim_main() {
      init();
 
      int overrun_count = 0;
