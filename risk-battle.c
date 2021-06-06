@@ -6,24 +6,8 @@
 #include "mt19937.h"
 #include "common.h"
 
-#define DEBUG 0
-#define TRACE 0
-
 #define SAMPLE_RUNS 10000000
 #define TROOP_RANGE 40
-
-#if DEBUG
-#  define DEBUG_MSG(x) x
-# else
-#  define DEBUG_MSG(x)
-#endif
-
-#if TRACE
-#  define TRACE_MSG(x) x
-# else
-#  define TRACE_MSG(x)
-#endif
-
 
 void sort_step(char *a, char *b) {
      if (*a < *b) {
