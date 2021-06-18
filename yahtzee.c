@@ -7,7 +7,7 @@
 
 #define NDICE 5
 
-#define NHANDS 500000000
+#define NHANDS 2000000000
 
 void roll_hand(char dice[NDICE]) {
      for(int ii = 0; ii < NDICE; ii++) {
@@ -15,9 +15,9 @@ void roll_hand(char dice[NDICE]) {
      }
 }
 
-void improve_chance_hand(char dice[NDICE]) {
+void improve_chance_hand(char dice[NDICE], int threshold) {
      for(int ii = 0; ii < NDICE; ii++) {
-          if(dice[ii] < 4) {
+          if(dice[ii] < threshold) {
                dice[ii] = roll_1d6();
           }
      }
@@ -45,13 +45,12 @@ int hand_chance_score(char dice[NDICE]) {
 }
 
 int sim_main() {
-     int scores[31];
-     int improved_scores[31];
+     int scores[31][7];
 
      memset(scores, 0, sizeof(scores));
-     memset(improved_scores, 0, sizeof(improved_scores));
 
-     char dice[NDICE];
+     char original_hand[NDICE];
+     char current_hand[NDICE];
 
      for(int ii = 0; ii < NHANDS; ii++) {
 
@@ -59,25 +58,38 @@ int sim_main() {
                fprintf(stderr, "[%d/%d]\n", ii, NHANDS);
           }
           
-          roll_hand(dice);
-          DEBUG_MSG(show_hand(dice));
+          roll_hand(original_hand);
+          memcpy(current_hand, original_hand, sizeof(original_hand));
+          
+          DEBUG_MSG(show_hand(current_hand));
 
-          int score = hand_chance_score(dice);
+
+          int score = hand_chance_score(current_hand);
 
           DEBUG_MSG(printf("%d\n", score));
 
-          scores[score]++;
+          scores[score][0]++;
 
-          improve_chance_hand(dice);
-          improve_chance_hand(dice);
+          for(int jj = 0; jj < 6; jj++) {
+               memcpy(current_hand, original_hand, sizeof(original_hand));
 
-          score = hand_chance_score(dice);
+               improve_chance_hand(current_hand, jj + 1);
+               improve_chance_hand(current_hand, jj + 1);
+
+               score = hand_chance_score(current_hand);
           
-          improved_scores[score]++;
+               scores[score][jj + 1]++;
+          }
      }
 
      for(int ii = 0; ii < 31; ii++) {
-          printf("%d, %d, %d\n", ii, scores[ii], improved_scores[ii]);
+          printf("%d, ", ii);
+
+          for(int jj = 0; jj < 7; jj++) {
+               printf("%d, ", scores[ii][jj]);
+          }
+
+          printf("\n");
      }
 
      return 0;
